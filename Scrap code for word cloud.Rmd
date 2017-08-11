@@ -1,0 +1,114 @@
+#Working for loop
+
+# rm(mastertext.1)
+# temptext = 0
+# 
+# for(i in 1:max(schooldata$Num))
+# {
+#     if (schooldata$Program[i] == schooldata$Program[3])
+#     {
+# 
+#         if (temptext == 0)
+#         {
+#             temptext <- schooldata$Path[i]
+#             temptext.1 <- readLines(temptext)
+#             mastertext.1 = temptext.1
+#         }
+# 
+#         temptext <- schooldata$Path[i]
+#         temptext.1 <- readLines(temptext)
+#         mastertext.1 <- rbind(mastertext.1, temptext.1)
+# 
+#     }
+# 
+# }
+# 
+# master.Corpus <- Corpus(VectorSource(mastertext.1))
+# master.clean <- text.cleaning(master.Corpus)
+# master.dtm <- TermDocumentMatrix(master.clean)
+# master.m <- as.matrix(master.dtm)
+# master.v <- sort(rowSums(master.m),decreasing=TRUE)
+# master.d <- data.frame(word=names(master.v),freq=master.v)
+# 
+# 
+# # set.seed(1234)
+# wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 1,
+#           max.words=200, random.order=FALSE, rot.per=0.00,
+#           colors=brewer.pal(8, "Dark2"))
+
+
+# Define a reactive expression for the document term matrix
+    # terms <- reactive({
+    #     # Change when the "update" button is pressed...
+    #     input$update
+        # ...but not for anything else
+        # rm(mastertext.1)
+        # temptext = 0
+        #     withProgress({
+        #         
+        #         for(i in 1:max(schooldata$Num))
+        #         {
+        #             if (schooldata$Program[i] == input$selection)
+        #             {
+        #                 
+        #                 if (temptext == 0)
+        #                 {
+        #                     temptext <- schooldata$Path[i]
+        #                     temptext.1 <- readLines(temptext)
+        #                     mastertext.1 = temptext.1
+        #                 }
+        #                 
+        #                 temptext <- schooldata$Path[i]
+        #                 temptext.1 <- readLines(temptext)
+        #                 mastertext.1 <- rbind(mastertext.1, temptext.1)
+        #                 
+        #             }
+        #             
+        #         }
+        #         
+        #         reactive({
+        #         master.Corpus <- Corpus(VectorSource(mastertext.1))
+        #         master.clean <- text.cleaning(master.Corpus)
+        #         master.dtm <- TermDocumentMatrix(master.clean)
+        #         master.m <- as.matrix(master.dtm)
+        #         master.v <- sort(rowSums(master.m),decreasing=TRUE)
+        #         master.d <- data.frame(word=names(master.v),freq=master.v)
+        #         })
+        #         
+        #     
+        #             wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 1,
+        #                 max.words=200, random.order=FALSE, rot.per=0.30, 
+        #                 colors=brewer.pal(8, "Dark2")) 
+        #     
+                
+               # getTermMatrix(input$selection)
+    #         })
+    #     
+    # })
+    
+    # set.seed(1234)
+    # wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 3,
+    #           max.words=Inf, random.order=FALSE, rot.per=0.35, 
+    #           colors=brewer.pal(8, "Dark2")) 
+    
+    # Make the wordcloud drawing predictable during a session,, 
+    #to make sure wordcloud are the same  
+    #wordcloud_rep <- repeatable(wordcloud)
+    # v <- terms()
+    #     wordcloud_rep(names(v), v, scale=c(4,0.5),
+    #                   min.freq = input$freq, max.words=input$max,
+    #                   colors=brewer.pal(8, "Dark2"))
+    # 
+    
+     
+# text.cleaning <- function(text){
+#     
+#     text <- tm_map(text, content_transformer(tolower))
+#     text <- tm_map(text, removeNumbers)
+#     text <- tm_map(text, removeWords, stopwords("english")) 
+#     #remove special words
+#     text <- tm_map(text, removeWords, c("classroom", "login", "and"))
+#     text <- tm_map(text, removePunctuation)
+#     text <- tm_map(text, stripWhitespace)
+#     return(text)
+# }

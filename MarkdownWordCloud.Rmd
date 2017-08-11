@@ -1,0 +1,309 @@
+---
+title: "R Notebook"
+output:
+  word_document: default
+  html_notebook: default
+  pdf_document: default
+  html_document: default
+---
+
+In this R file I intend to produce a word cloud and text analysis of Undergrad programs in the field of Sociology, Data Analytic, Data Science, and related fields. 
+
+After a word cloud is created for each program, I will input the data into a Geo-graphical tool to analyze the differences in words being used in different geographical corners of the country.
+
+
+```{r, include=FALSE}
+setwd("C:/Users/Lukasz Sowinski/Desktop/WordCloudQCmapping")
+# installing packages that are needed
+# install.packages("tm")  # for text mining
+# install.packages("SnowballC") # for text stemming
+# install.packages("wordcloud") # word-cloud generator
+# install.packages("RColorBrewer") # color palettes
+#install.packages("RXKCD")
+# Load
+packages <- c("tm","RXKCD","ggplot2","SnowballC","wordcloud","RColorBrewer","RXKCD")
+ipak(packages)
+library()
+rm(list=ls())
+```
+
+```{r, pathPrep}
+pathPrep()
+```
+
+```{r functions}
+text.cleaning <- function(text){
+    
+        text <- tm_map(text, content_transformer(tolower))
+        text <- tm_map(text, removeNumbers)
+        text <- tm_map(text, removeWords, stopwords("english")) 
+        #remove special words
+        text <- tm_map(text, removeWords, c("classroom", "login", "and"))
+        text <- tm_map(text, removePunctuation)
+        text <- tm_map(text, stripWhitespace)
+
+    return(text)
+}
+
+pathPrep <- function(path = "clipboard") {
+    y <- if (path == "clipboard") 
+        {
+        readClipboard()
+        } 
+                else {
+                        cat("Please enter the path:\n\n")
+                        readline()
+                    }
+    x <- chartr("\\", "/", y)
+    writeClipboard(x)
+    return(x)
+}
+
+#appending master cloud with new Data
+appendMasterText <- function(tempTextd){
+    Mastertext = rbind(tempTextd, Mastertext)
+        master.Corpus <- Corpus(VectorSource(Mastertext))
+        master.clean <- text.cleaning(master.Corpus)
+        master.dtm <- TermDocumentMatrix(master.clean)
+        master.m <- as.matrix(master.dtm)
+        master.v <- sort(rowSums(master.m),decreasing=TRUE)
+        master.d <- data.frame(word=names(master.v),freq=master.v)  
+    return()
+}
+
+
+createMasterCloud <- function(){
+    png("Masterwordcloud.png", width=1280,height=800) 
+set.seed(1234)
+wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+return()
+}
+
+ipak <- function(pkg){
+new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+sapply(pkg, require, character.only = TRUE)
+}
+
+```
+
+```{r, Queens College Sociology,  warning= FALSE}
+
+QCSoc <- readLines("C:/Users/Lukasz Sowinski/Desktop/WordCloudQCmapping/QueensCollegeSociology.txt")
+
+QCSoc.Corpus <- Corpus(VectorSource(QCSoc))
+QCSoc.clean <- text.cleaning(QCSoc.Corpus)
+temp.dtm <- TermDocumentMatrix(QCSoc.clean)
+#Creating a Specific school data cloud for the school out of the temp data
+                QCSoc.dtm = temp.dtm
+                        QCSoc.m <- as.matrix(QCSoc.dtm)
+                        QCSoc.v <- sort(rowSums(QCSoc.m),decreasing=TRUE)
+                        QCSoc.d <- data.frame(word=names(QCSoc.v),freq=QCSoc.v)
+#Creating the master data cloud and adding the temp data to it.                  
+                                  master.dtm = temp.dtm
+                                        master.m <- as.matrix(master.dtm)
+                                        master.v <- sort(rowSums(master.m),decreasing=TRUE)
+                                        master.d <- data.frame(word=names(master.v),freq=master.v)
+
+#Creating the Queens College School word cloud    
+png("QCSocwordcloud.png", width=1280,height=800)                                
+set.seed(1234)
+wordcloud(words = QCSoc.d$word, freq = QCSoc.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+png("Masterwordcloud.png", width=1280,height=800) 
+set.seed(1234)
+wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 2,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+# m <- as.matrix(dtm)
+# v <- sort(rowSums(m),decreasing=TRUE)
+# d <- data.frame(word = names(v),freq=v)
+
+```
+
+
+```{r Lehman College Sociology,  warning= FALSE}
+LCSoc <- readLines("C:/Users/Lukasz Sowinski/Desktop/WordCloudQCmapping/LehmanCollegeSociology.txt")
+tempText <- LCSoc
+
+
+LCSoc.Corpus <- Corpus(VectorSource(LCSoc))
+LCSoc.clean <- text.cleaning(LCSoc.Corpus)
+temp.dtm <- TermDocumentMatrix(LCSoc.clean)
+
+                        LCSoc.dtm = temp.dtm
+                           LCSoc.m <- as.matrix(LCSoc.dtm)
+                            LCSoc.v <- sort(rowSums(LCSoc.m),decreasing=TRUE)
+                            LCSoc.d <- data.frame(word=names(LCSoc.v),freq=LCSoc.v)
+                            
+#aMasterText()     
+                            #        #appending master cloud with new Data
+                            Mastertext = rbind(LCSoc,QCSoc)
+                            master.Corpus <- Corpus(VectorSource(Mastertext))
+                                        master.clean <- text.cleaning(master.Corpus)
+                                        master.dtm <- TermDocumentMatrix(master.clean)
+                                                master.m <- as.matrix(master.dtm)
+                                                master.v <- sort(rowSums(master.m),decreasing=TRUE)
+                                                master.d <- data.frame(word=names(master.v),freq=master.v)
+                            # 
+png("LCSocwordcloud.png", width=1280,height=800)                                         
+set.seed(1234)
+    wordcloud(words = LCSoc.d$word, freq = LCSoc.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+png("Masterwordcloud.png", width=1280,height=800) 
+set.seed(1234)
+wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+```
+
+```{r Denison Univeristy,  warning= FALSE}
+DUda <- readLines("C:/Users/Lukasz Sowinski/Desktop/WordCloudQCmapping/DenisonUniversityDataAnalytics.txt")
+
+DUda.Corpus <- Corpus(VectorSource(DUda))
+DUda.clean <- text.cleaning(DUda.Corpus)
+temp.dtm <- TermDocumentMatrix(DUda.clean)
+
+                        DUda.dtm = temp.dtm
+                            DUda.m <- as.matrix(DUda.dtm)
+                            DUda.v <- sort(rowSums(DUda.m),decreasing=TRUE)
+                            DUda.d <- data.frame(word=names(DUda.v),freq=DUda.v)
+                            
+                        
+                                   #appending master cloud with new Data
+                            Mastertext = rbind(DUda, Mastertext)
+                            master.Corpus <- Corpus(VectorSource(Mastertext))
+                                        master.clean <- text.cleaning(master.Corpus)
+                                        master.dtm <- TermDocumentMatrix(master.clean)
+                                                master.m <- as.matrix(master.dtm)
+                                                master.v <- sort(rowSums(master.m),decreasing=TRUE)
+                                                master.d <- data.frame(word=names(master.v),freq=master.v)                            
+   
+                                        
+set.seed(1234)
+png("DenisonUniversitywordcloud.png", width=1280,height=800)
+wordcloud(words = DUda.d$word, freq = DUda.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+createMasterCloud()
+
+# png("Masterwordcloud.png", width=1280,height=800) 
+# set.seed(1234)
+# wordcloud(words = master.d$word, freq = master.d$freq, min.freq = 1,
+#           max.words=200, random.order=FALSE, rot.per=0.35, 
+#           colors=brewer.pal(8, "Dark2")) 
+# dev.off()    
+
+```
+
+```{r StJohnU data science, error = FALSE, message= FALSE, warning= FALSE}
+
+SJuDS <- readLines("C:/Users/Lukasz Sowinski/Desktop/WordCloudQCmapping/StJohnsUniversityDataAnalytics.txt")
+tempText <- SJuDS
+SJuDS.Corpus <- Corpus(VectorSource(SJuDS))
+SJuDS.clean <- text.cleaning(SJuDS.Corpus)
+temp.dtm <- TermDocumentMatrix(SJuDS.clean)
+
+                        SJuDS.dtm = temp.dtm
+                            SJuDS.m <- as.matrix(SJuDS.dtm)
+                            SJuDS.v <- sort(rowSums(SJuDS.m),decreasing=TRUE)
+                            SJuDS.d <- data.frame(word=names(SJuDS.v),freq=SJuDS.v)
+                            
+                          
+                            
+                                #appending master cloud with new Data
+                            Mastertext = rbind(SJuDS, Mastertext)
+                            master.Corpus <- Corpus(VectorSource(Mastertext))
+                                        master.clean <- text.cleaning(master.Corpus)
+                                        master.dtm <- TermDocumentMatrix(master.clean)
+                                                master.m <- as.matrix(master.dtm)
+                                                master.v <- sort(rowSums(master.m),decreasing=TRUE)
+                                                master.d <- data.frame(word=names(master.v),freq=master.v)
+
+   
+                                        
+set.seed(1234)
+png("SJUniversitywordcloud.png", width=1280,height=800)
+wordcloud(words = SJuDS.d$word, freq = SJuDS.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+createMasterCloud()
+
+
+```
+
+```{r StJohnU data science, error = FALSE, message= FALSE, warning= FALSE}
+
+PSSoc <- readLines("C:/Users/Lukasz Sowinski/Desktop/WordCloudQCmapping/PSSociology.txt")
+tempText <- PSSoc
+PSSoc.Corpus <- Corpus(VectorSource(PSSoc))
+PSSoc.clean <- text.cleaning(PSSoc.Corpus)
+temp.dtm <- TermDocumentMatrix(PSSoc.clean)
+
+                        PSSoc.dtm = temp.dtm
+                            PSSoc.m <- as.matrix(PSSoc.dtm)
+                            PSSoc.v <- sort(rowSums(PSSoc.m),decreasing=TRUE)
+                            PSSoc.d <- data.frame(word=names(PSSoc.v),freq=PSSoc.v)
+
+         appendMasterText(PSSoc)                   
+                            Mastertext = rbind(PSSoc, Mastertext)
+                                master.Corpus <- Corpus(VectorSource(Mastertext))
+                                        master.clean <- text.cleaning(master.Corpus)
+                                        master.dtm <- TermDocumentMatrix(master.clean)
+                                                master.m <- as.matrix(master.dtm)
+                                                master.v <- sort(rowSums(master.m),decreasing=TRUE)
+                                                master.d <- data.frame(word=names(master.v),freq=master.v)
+
+                          
+                       
+set.seed(1234)
+png("PSsociologywordcloud.png", width=1280,height=800)
+wordcloud(words = PSSoc.d$word, freq = PSSoc.d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2")) 
+dev.off()
+
+createMasterCloud()
+
+```
+```{r}
+list.files()
+
+file_list <- list.files()
+ 
+for (file in file_list){
+       
+  # if the merged dataset doesn't exist, create it
+  if (!exists("dataset")){
+    dataset <- read.table(file, header=FALSE, sep="\t")
+  }
+   
+  # if the merged dataset does exist, append to it
+  if (exists("dataset")){
+    temp_dataset <-read.table(file, header=FALSE, sep="\t")
+    dataset<-rbind(dataset, temp_dataset)
+    rm(temp_dataset)
+  }
+ 
+}
+```
+
